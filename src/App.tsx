@@ -1,26 +1,37 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from 'react'
+import { Box, BoxProps, createTheme, ThemeProvider } from '@mui/material'
+import { useTheme } from 'hooks/useTheme'
+import Routes from 'routes'
+import { useAppSelector } from 'hooks/useAppSelector'
+declare module '@mui/material/styles' {
+  interface Palette {
+    neutral: Palette['primary']
+  }
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+  // allow configuration using `createTheme`
+  interface PaletteOptions {
+    neutral?: PaletteOptions['primary']
+  }
 }
 
-export default App;
+function App() {
+  const { theme } = useAppSelector(store => store)
+
+  const darkTheme = createTheme({
+    palette: {
+      mode: theme,
+      neutral: {
+        main: '#D1D5DE',
+        contrastText: '#fff',
+      },
+    },
+  })
+
+  return (
+    <ThemeProvider theme={darkTheme}>
+      <Routes />
+    </ThemeProvider>
+  )
+}
+
+export default App
