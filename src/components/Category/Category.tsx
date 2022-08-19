@@ -1,6 +1,5 @@
-import { Button, IconButton, Modal, styled, TextField, Tooltip, Typography, Alert } from '@mui/material'
-import React, { useState } from 'react'
-import { Add as AddIcon } from '@mui/icons-material'
+import { Button, IconButton, Modal, styled, TextField, Tooltip, Typography, Alert, Snackbar } from '@mui/material'
+import React, { useState, useEffect } from 'react'
 import { Box } from '@mui/system'
 import { useForm, Controller, SubmitHandler } from 'react-hook-form'
 import { useCreateCategoryMutation } from 'store'
@@ -15,45 +14,57 @@ interface FormInput {
   title: string
 }
 
-export const Category = () => {
-  const [isOpened, setIsOpened] = useState<boolean>(false)
+type Props = {
+  mode: 'edit' | 'create'
+  isOpened: boolean
+  setIsOpened: (value: boolean) => void
+  title?: string
+}
+
+export const Category: React.FC<Props> = ({ mode, isOpened, setIsOpened, title = '' }) => {
+  // const [isOpened, setIsOpened] = useState<boolean>(false)
 
   const {
     control,
     handleSubmit,
     reset: resetForm,
     formState: { errors },
+    setValue,
   } = useForm({
+    mode: 'onSubmit',
     defaultValues: {
       title: '',
     },
   })
 
+  useEffect(() => {
+    if (mode === 'edit' && title) {
+      setValue('title', title)
+    }
+  }, [mode, title])
+
   const [createCategory, { isLoading, isSuccess, reset, isError }] = useCreateCategoryMutation()
 
   const onSubmit: SubmitHandler<FormInput> = async data => {
     const res = await createCategory({ title: data.title })
-    // if (isSuccess) {
-    //   console.log('🚀 ~ Category ~ isSuccess', isSuccess)
-    //   resetForm({ title: '' })
-    //   setTimeout(() => {
-    //     reset()
-    //   }, 3000)
-    // }
+    resetForm({ title: '' })
+    setIsOpened(false)
   }
+
   return (
     <>
-      <Tooltip
-        onClick={e => setIsOpened(true)}
-        title='Добавить категорию'
-        sx={{
-          mb: 5,
-        }}
+      <Snackbar
+        open={isSuccess || isError}
+        autoHideDuration={6000}
+        onClose={reset}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
       >
-        <IconButton>
-          <AddIcon />
-        </IconButton>
-      </Tooltip>
+        <Alert onClose={reset} severity={isSuccess ? 'success' : 'error'} sx={{ width: '100%' }}>
+          {isSuccess && 'Категория успешно добавлена'}
+          {isError && 'Произошла ошибка при добавлении категории'}
+        </Alert>
+      </Snackbar>
+
       <StyledModal
         open={isOpened}
         onClose={e => setIsOpened(false)}
@@ -87,11 +98,6 @@ export const Category = () => {
                 />
               )}
             />
-            {/* {isSuccess && (
-              <Alert severity='success' sx={{ my: 2 }}>
-                Категория успешно добавлена
-              </Alert>
-            )} */}
           </form>
 
           <Button sx={{ mt: 5 }} onClick={handleSubmit(onSubmit)} disabled={isLoading}>

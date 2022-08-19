@@ -1,6 +1,6 @@
 import React from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { Box, Container, Typography, IconButton, BoxProps, Stack, Pagination, Skeleton } from '@mui/material'
+import { Box, Container, Typography, IconButton, BoxProps, Stack, Pagination, Skeleton, Button } from '@mui/material'
 import EditIcon from '@mui/icons-material/Edit'
 import { useGetCategoriesQuery } from 'store'
 import CategoryComponent from 'components/Category'
@@ -17,6 +17,7 @@ import ListItemText from '@mui/material/ListItemText'
 import MailIcon from '@mui/icons-material/Mail'
 import CategoryIcon from '@mui/icons-material/Category'
 import type { Category } from 'store'
+import { Add as AddIcon } from '@mui/icons-material'
 
 interface Props {}
 
@@ -96,6 +97,9 @@ export const AdminPage: React.FC<Props> = () => {
     setOpen(!open)
   }
 
+  const [isOpened, setIsOpened] = React.useState(false)
+  const [mode, setMode] = React.useState<'create' | 'edit'>('create')
+
   return (
     <Box flex={4} p={{ xs: 0, md: 2 }} sx={{ display: 'flex', minWidth: '300px', overflowX: 'hidden' }}>
       <Drawer variant='permanent' open={open}>
@@ -133,9 +137,21 @@ export const AdminPage: React.FC<Props> = () => {
         </List>
       </Drawer>
       <Container maxWidth='md' sx={{ minWidth: '300px', overflowX: 'hidden', py: 5 }}>
-        <CategoryComponent />
+        <Button
+          variant='outlined'
+          color='secondary'
+          startIcon={<AddIcon />}
+          sx={{ mb: 4 }}
+          onClick={e => {
+            setIsOpened(true)
+            setMode('create')
+          }}
+        >
+          Добавить категорию
+        </Button>
+        <CategoryComponent isOpened={isOpened} setIsOpened={setIsOpened} mode={mode} />
         {isFetching ? (
-          <Stack spacing={4}>
+          <Stack spacing={2}>
             {skeletons.map((el, idx) => {
               return <Skeleton variant='rounded' width={'80%'} height={30} key={idx} />
             })}
@@ -147,7 +163,14 @@ export const AdminPage: React.FC<Props> = () => {
                 return (
                   <CategoryWrapper key={category.id}>
                     <Typography>{category.title}</Typography>
-                    <IconButton sx={{ ml: 2 }} size='small'>
+                    <IconButton
+                      sx={{ ml: 2 }}
+                      size='small'
+                      onClick={e => {
+                        setIsOpened(true)
+                        setMode('edit')
+                      }}
+                    >
                       <EditIcon />
                     </IconButton>
                   </CategoryWrapper>
@@ -155,7 +178,12 @@ export const AdminPage: React.FC<Props> = () => {
               })}
 
             <Stack spacing={2}>
-              <Pagination count={data?.lastPage || 1} page={+currentPage} onChange={handlePageClick} />
+              <Pagination
+                count={data?.lastPage || 1}
+                page={+currentPage}
+                onChange={handlePageClick}
+                boundaryCount={1}
+              />
             </Stack>
           </>
         )}

@@ -1,16 +1,14 @@
-import { useLayoutEffect, useState } from 'react'
-
-export type Theme = 'dark' | 'light'
-
-const isDarkTheme = window?.matchMedia('(prefers-color-scheme: dark)').matches
-const defaultTheme = isDarkTheme ? 'dark' : 'light'
+// import { useLayoutEffect, useState } from 'react'
+import { useAppSelector } from 'hooks/useAppSelector'
+import { useAppDispatch } from 'hooks/useAppDispatch '
+import { setTheme } from 'store/themeSlice'
 
 export const useTheme = () => {
-  const [theme, setTheme] = useState<Theme>((localStorage.getItem('app-theme') as Theme) || defaultTheme)
+  const dispatch = useAppDispatch()
+  const { theme } = useAppSelector(store => store)
 
-  useLayoutEffect(() => {
-    localStorage.setItem('app-theme', theme)
-  }, [theme])
-
-  return { theme, setTheme }
+  const toggleTheme = () => {
+    dispatch(setTheme(theme === 'light' ? 'dark' : 'light'))
+  }
+  return { theme, toggleTheme }
 }

@@ -5,15 +5,11 @@ import {
   PersonOutlineOutlined as PersonOutlineOutlinedIcon,
 } from '@mui/icons-material'
 import { AppBar, Toolbar, IconButton, Container } from '@mui/material'
-import React, { Dispatch, SetStateAction } from 'react'
-import type { Theme } from 'hooks/useTheme'
-import { Link } from 'react-router-dom'
-import { ThemeType } from 'store/themeSlice'
+import React from 'react'
+import { useTheme } from 'hooks/useTheme'
+import { NavLink } from 'react-router-dom'
 
-interface HeaderProps {
-  theme: ThemeType
-  setTheme: (theme: ThemeType) => void
-}
+interface HeaderProps {}
 
 declare module '@mui/material/AppBar' {
   interface AppBarPropsColorOverrides {
@@ -21,26 +17,24 @@ declare module '@mui/material/AppBar' {
   }
 }
 
-export const Header: React.FC<HeaderProps> = ({ theme, setTheme }) => {
-  const handleThemeClick = (e: React.MouseEvent<HTMLElement>) => {
-    setTheme(theme === 'light' ? 'dark' : 'light')
-  }
+export const Header: React.FC<HeaderProps> = () => {
+  const { theme, toggleTheme } = useTheme()
 
   return (
     <AppBar position='static' color='neutral'>
       <Toolbar>
         <Container maxWidth='xl' sx={{ display: 'flex' }}>
-          <IconButton component={Link} to='/'>
+          <IconButton component={NavLink} to='/'>
             <HomeIcon />
           </IconButton>
-          <IconButton component={Link} to='/user'>
+          <IconButton component={NavLink} to='/user'>
             <PersonOutlineOutlinedIcon />
           </IconButton>
           <IconButton
             color='primary'
             aria-label='change theme'
             component='label'
-            onClick={handleThemeClick}
+            onClick={toggleTheme}
             sx={{ ml: 'auto' }}
           >
             {theme === 'light' ? <LightMode /> : <ModeNight />}
