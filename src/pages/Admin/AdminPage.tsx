@@ -83,7 +83,9 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: prop => prop !== 'open' })
 
 export const AdminPage: React.FC<Props> = () => {
   const [searchParams, setSearchParams] = useSearchParams()
+
   const currentPage = searchParams.get('page') ?? 1
+  const editId = searchParams.get('editId') ?? ''
 
   const { data, isFetching } = useGetCategoriesQuery({ page: currentPage, take: 10 })
 
@@ -98,7 +100,6 @@ export const AdminPage: React.FC<Props> = () => {
   }
 
   const [isOpened, setIsOpened] = React.useState(false)
-  const [mode, setMode] = React.useState<'create' | 'edit'>('create')
 
   return (
     <Box flex={4} p={{ xs: 0, md: 2 }} sx={{ display: 'flex', minWidth: '300px', overflowX: 'hidden' }}>
@@ -144,12 +145,11 @@ export const AdminPage: React.FC<Props> = () => {
           sx={{ mb: 4 }}
           onClick={e => {
             setIsOpened(true)
-            setMode('create')
           }}
         >
           Добавить категорию
         </Button>
-        <CategoryComponent isOpened={isOpened} setIsOpened={setIsOpened} mode={mode} />
+        <CategoryComponent isOpened={isOpened || !!editId} setIsOpened={setIsOpened} />
         {isFetching ? (
           <Stack spacing={2}>
             {skeletons.map((el, idx) => {
@@ -167,8 +167,11 @@ export const AdminPage: React.FC<Props> = () => {
                       sx={{ ml: 2 }}
                       size='small'
                       onClick={e => {
-                        setIsOpened(true)
-                        setMode('edit')
+                        setSearchParams({
+                          ...Object.fromEntries(new URLSearchParams(searchParams)),
+                          editId: category.id.toString(),
+                        })
+                        // setIsOpened(true)
                       }}
                     >
                       <EditIcon />

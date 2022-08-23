@@ -1,11 +1,11 @@
 export const exerciseData = [
   [
     {
-      rus: 'Его советы всегда бывают такими убедительными (convincing). Почему ты никогда им не следуешь?',
+      rus: 'Его советы бывают такими убедительными (convincing). Почему ты никогда им не следуешь?',
       eng: 'His advice is always so convincing. Why do you never follow it?',
     },
     {
-      rus: 'Кaкaя ненaстнaя (nasty) пoгoдa! В тaкую дoждливую пoгoду лучше сидеть дoмa.',
+      rus: 'Какая ненaстнaя (nasty) пoгoдa! В тaкую дoждливую пoгoду лучше сидеть дoмa.',
       eng: "What nasty weather! It's better to stay at home in such rainy weather.",
     },
     {

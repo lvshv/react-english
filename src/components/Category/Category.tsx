@@ -2,7 +2,13 @@ import { Button, IconButton, Modal, styled, TextField, Tooltip, Typography, Aler
 import React, { useState, useEffect } from 'react'
 import { Box } from '@mui/system'
 import { useForm, Controller, SubmitHandler } from 'react-hook-form'
-import { useCreateCategoryMutation } from 'store'
+import {
+  useCreateCategoryMutation,
+  useDeleteCategoryMutation,
+  useGetCategoryByIdQuery,
+  useUpdateCategoryMutation,
+} from 'store'
+import { useSearchParams } from 'react-router-dom'
 
 const StyledModal = styled(Modal)({
   display: 'flex',
@@ -15,14 +21,24 @@ interface FormInput {
 }
 
 type Props = {
-  mode: 'edit' | 'create'
   isOpened: boolean
   setIsOpened: (value: boolean) => void
   title?: string
 }
 
-export const Category: React.FC<Props> = ({ mode, isOpened, setIsOpened, title = '' }) => {
-  // const [isOpened, setIsOpened] = useState<boolean>(false)
+export const Category: React.FC<Props> = ({ isOpened, setIsOpened }) => {
+  const [searchParams, setSearchParams] = useSearchParams()
+  const editId = searchParams.get('editId') || ''
+  const editMode = Boolean(editId)
+
+  const { data, isFetching } = useGetCategoryByIdQuery(editId, {
+    skip: !editMode,
+  })
+  const [createCategory, { isLoading, isSuccess, reset, isError }] = useCreateCategoryMutation()
+
+  const [updateCategory] = useUpdateCategoryMutation()
+
+  const [deleteCategory] = useDeleteCategoryMutation()
 
   const {
     control,
@@ -38,17 +54,36 @@ export const Category: React.FC<Props> = ({ mode, isOpened, setIsOpened, title =
   })
 
   useEffect(() => {
-    if (mode === 'edit' && title) {
-      setValue('title', title)
+    if (data?.title && editMode) {
+      setValue('title', data.title)
     }
-  }, [mode, title])
-
-  const [createCategory, { isLoading, isSuccess, reset, isError }] = useCreateCategoryMutation()
+    return () => {
+      setValue('title', '')
+    }
+  }, [data, editMode])
 
   const onSubmit: SubmitHandler<FormInput> = async data => {
-    const res = await createCategory({ title: data.title })
+    if (!editMode) {
+      const res = await createCategory({ title: data.title })
+    } else {
+      const res = await updateCategory({ id: editId, title: data.title })
+      removeEditId()
+    }
     resetForm({ title: '' })
     setIsOpened(false)
+  }
+
+  const onClickDeleteCategory = async () => {
+    const res = await deleteCategory({ id: editId })
+    removeEditId()
+  }
+
+  const removeEditId = () => {
+    const queryObj = { ...Object.fromEntries(new URLSearchParams(searchParams)) }
+    delete queryObj.editId
+    setSearchParams({
+      ...queryObj,
+    })
   }
 
   return (
@@ -67,13 +102,16 @@ export const Category: React.FC<Props> = ({ mode, isOpened, setIsOpened, title =
 
       <StyledModal
         open={isOpened}
-        onClose={e => setIsOpened(false)}
+        onClose={e => {
+          setIsOpened(false)
+          removeEditId()
+        }}
         aria-labelledby='modal-modal-title'
         aria-describedby='modal-modal-description'
       >
         <Box width={400} bgcolor={'background.default'} color={'text.primary'} p={3} borderRadius={5}>
           <Typography variant='h6' color='gray' textAlign='center' sx={{ mb: 2 }}>
-            Добавление категории
+            {!editMode ? 'Добавление' : 'Редактирование'} категории
           </Typography>
           <form onSubmit={handleSubmit(onSubmit)}>
             <Controller
@@ -100,9 +138,15 @@ export const Category: React.FC<Props> = ({ mode, isOpened, setIsOpened, title =
             />
           </form>
 
-          <Button sx={{ mt: 5 }} onClick={handleSubmit(onSubmit)} disabled={isLoading}>
-            Создать
+          <Button sx={{ mt: 5, width: '50%' }} onClick={handleSubmit(onSubmit)} disabled={isLoading} color='success'>
+            Сохранить
           </Button>
+
+          {editMode && (
+            <Button sx={{ mt: 5, width: '50%' }} onClick={onClickDeleteCategory} disabled={isLoading} color='error'>
+              Удалить
+            </Button>
+          )}
         </Box>
       </StyledModal>
     </>
