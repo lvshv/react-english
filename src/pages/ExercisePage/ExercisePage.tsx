@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
-import { Box, Container, Typography, Button, styled, Tooltip, ClickAwayListener } from '@mui/material'
+import React, { useEffect, useMemo, useState } from 'react'
+import { Link, Navigate, useNavigate, useParams } from 'react-router-dom'
+import { Box, Container, Typography, Button, styled, Tooltip, ClickAwayListener, CircularProgress } from '@mui/material'
 import { exerciseData } from 'data/exercises.js'
 import { useTranslateWordQuery } from 'store'
 
@@ -12,25 +12,26 @@ interface Sentence {
 
 export const ExercisePage = () => {
   let params = useParams()
-  const navigate = useNavigate()
+  // const navigate = useNavigate()
 
   const [exercises, setExercises] = useState(exerciseData)
   // const [translateMode, setTranslateMode] = useState(false)
   // const [inputValue, setInputValue] = useState('')
+  const exerciseId = params.exerciseId
 
-  useEffect(() => {
-    if (!params.exerciseId) {
-      navigate('/')
+  const currentExercise = useMemo(() => {
+    if (exerciseId) {
+      return exercises[+exerciseId]
     }
-  }, [params, navigate])
+    return []
+  }, [exerciseId])
+  console.log('🚀 ~ currentExercise', 'ExercisePage RERENDER')
 
-  if (!params.exerciseId) {
-    return <></>
+  if (!exerciseId) {
+    return <Navigate to='/' />
   }
 
-  const exerciseId: string = params.exerciseId
-
-  const handlerShowRus = ({ exerciseIdx, idx }: { exerciseIdx: any; idx: any }) => {
+  const handlerShowRus = ({ exerciseIdx, idx }: any) => {
     return () => {
       const newState = JSON.parse(JSON.stringify(exercises))
       let sentence = newState[exerciseIdx][idx]
@@ -56,12 +57,12 @@ export const ExercisePage = () => {
           </Typography>
 
           <div>
-            {exercises[+exerciseId].map((el: Sentence, idx) => {
+            {currentExercise.map((el: Sentence, idx) => {
               return (
                 <Box key={`s-${idx}`} sx={{ mb: 2 }}>
                   <Typography
                     variant='body1'
-                    sx={{ cursor: 'pointer', display: 'flex' }}
+                    sx={{ cursor: 'pointer', display: 'flex', flexWrap: 'wrap' }}
                     gutterBottom
                     // onClick={handlerShowRus({ exerciseIdx: exerciseId, idx })}
                   >
@@ -103,18 +104,20 @@ const StyledWord = styled('span')({
 const Word: React.FC<{ word: string }> = ({ word }) => {
   const [open, setOpen] = React.useState(false)
 
-  const { data } = useTranslateWordQuery(
-    { word },
+  const { data, isFetching } = useTranslateWordQuery(
+    { word: word.replace(/[^a-zA-ZА-Яа-я]/g, '') },
     {
       skip: !open,
     }
   )
 
+  // const [trigger] = useLazyTranslateWordQuery()
+
   const handleTooltipClose = () => {
     setOpen(false)
   }
 
-  const onClickWord = (word: string) => async () => {
+  const onClickWord = () => {
     setOpen(true)
   }
 
@@ -125,30 +128,17 @@ const Word: React.FC<{ word: string }> = ({ word }) => {
           disablePortal: false,
         }}
         onClose={handleTooltipClose}
-        open={open && !!data}
+        open={open}
         disableFocusListener
         disableHoverListener
         disableTouchListener
         title={
-          data ? (
-            <div>
-              {word} -{' '}
-              {data.dict[0].entry.map((el: any) => {
-                console.log('🚀 ~ {data.dict.map ~ data.dict', data.dict)
-                return (
-                  <span key={el.word}>
-                    {el.word}
-                    {', '}
-                  </span>
-                )
-              })}
-            </div>
-          ) : (
-            <div></div>
-          )
+          <div style={{ padding: '12px', fontSize: '16px' }}>
+            {isFetching ? <CircularProgress size='20px' /> : <div>{data?.translation}</div>}
+          </div>
         }
       >
-        <StyledWord onClick={onClickWord(word)} style={{ marginRight: '4px' }}>
+        <StyledWord onClick={onClickWord} style={{ marginRight: '4px' }}>
           {word}
         </StyledWord>
       </Tooltip>

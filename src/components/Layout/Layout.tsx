@@ -9,6 +9,7 @@ const MainBox = styled(Box)<BoxProps>(({ theme }) => ({
 }))
 
 export const Layout = () => {
+  console.log('layout rerender')
   return (
     <>
       <Header />

@@ -13,7 +13,7 @@ export const exerciseData = [
       eng: 'She is making good progress in English.',
     },
     {
-      rus: 'Я удивлен (bе surprіsеd), чтo oнa пoверилa этим стрaнным нoвoстям. Бoюсь, oни недoстoверны. Ктo их ей сooбщил?',
+      rus: 'Я удивлен (bе surprіsеd), чтo oнa поверила этим странным нoвoстям. Бoюсь, oни недoстoверны. Ктo их ей сooбщил?',
       eng: 'I am surprised that she (has) believed this strange news. I am afraid, it is not true. Who told it to her?',
     },
     {

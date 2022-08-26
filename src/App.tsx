@@ -3,6 +3,7 @@ import { Box, BoxProps, createTheme, ThemeProvider } from '@mui/material'
 import { useTheme } from 'hooks/useTheme'
 import Routes from 'routes'
 import { useAppSelector } from 'hooks/useAppSelector'
+import { RootState } from 'store'
 declare module '@mui/material/styles' {
   interface Palette {
     neutral: Palette['primary']
@@ -14,8 +15,10 @@ declare module '@mui/material/styles' {
   }
 }
 
+const themeSelector = (store: RootState) => store.theme
+
 function App() {
-  const { theme } = useAppSelector(store => store)
+  const theme = useAppSelector(themeSelector)
 
   const darkTheme = createTheme({
     palette: {
@@ -26,6 +29,7 @@ function App() {
       },
     },
   })
+  console.log('app RERENDER')
 
   return (
     <ThemeProvider theme={darkTheme}>

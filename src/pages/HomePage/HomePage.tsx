@@ -18,6 +18,7 @@ const StyledLink = styled(Link)<LinkProps>(({ theme }) => {
     borderRadius: '20px',
     color: 'white',
     backgroundColor: theme.palette.mode === 'light' ? theme.palette.secondary.light : theme.palette.secondary.dark,
+    // backgroundColor: '#90caf9'.
     transition: 'all 0.3s ease',
     '&:hover': {
       backgroundColor: '#f3e5f5',

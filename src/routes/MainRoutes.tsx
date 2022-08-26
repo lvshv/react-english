@@ -1,6 +1,7 @@
 import React, { lazy } from 'react'
 import { CircularProgress, Container } from '@mui/material'
 import Layout from 'components/Layout'
+import { Navigate } from 'react-router-dom'
 
 const ExercisePage = lazy(() => import('pages/ExercisePage'))
 const HomePage = lazy(() => import('pages/HomePage'))
@@ -28,11 +29,12 @@ export const MainRoutes = {
     },
 
     {
-      path: 'exercise',
+      path: '/exercise',
       element: (
         <React.Suspense fallback={<PageLoader />}>
           <ExercisePage />
         </React.Suspense>
+        // <Navigate to='/' />
       ),
       children: [
         {

@@ -94,6 +94,7 @@ export const AdminPage: React.FC<Props> = () => {
   }
 
   const [open, setOpen] = React.useState(false)
+  console.log('AdminPage RERENDER')
 
   const handleDrawerOpen = () => {
     setOpen(!open)

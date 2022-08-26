@@ -18,7 +18,7 @@ type CategoriesQuery = {
 export const api = createApi({
   reducerPath: 'api',
   baseQuery: fetchBaseQuery({ baseUrl: 'http://localhost:5000/api/' }),
-  tagTypes: ['Category'],
+  tagTypes: ['Category', 'Translate'],
   endpoints: builder => ({
     getCategories: builder.query<CategoriesResponse, CategoriesQuery>({
       query: query => {
@@ -74,6 +74,10 @@ export const api = createApi({
           method: 'GET',
           params: query,
         }
+      },
+      providesTags: (result, error, id: any) => {
+        console.log('🚀 ~ id', id)
+        return [{ type: 'Translate', id: id.word }]
       },
     }),
   }),
